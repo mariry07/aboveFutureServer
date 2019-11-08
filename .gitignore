@@ -1,0 +1,74 @@
+=======
+### GIT 全局忽略文件 ###
+### Maven ###
+/target/
+/smartcity-logs/
+
+### Compiled class file ###
+*.class
+
+
+### Package Files ###
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+
+### BlueJ files ###
+*.ctxt
+
+
+### kdiff3 ###
+*.orig
+
+
+### System ###
+.DS_Store
+Thumbs.db
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+
+### Eclipse ###
+.settings/
+.project
+.classpath
+
+
+### Temp file ###
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
