@@ -1,0 +1,12 @@
+package ${entity.daoPackage};
+
+import com.tianbo.smartcity.base.SmartCityBaseDao;
+import com.tianbo.smartcity.modules.your.entity.Floor;
+
+/**
+ * ${entity.description}数据处理层
+ * @author ${entity.author}
+ */
+public interface ${entity.className}Dao extends SmartCityBaseDao<${entity.className},${entity.primaryKeyType}> {
+
+}

@@ -1,0 +1,25 @@
+package ${entity.servicePackage};
+
+import com.tianbo.smartcity.base.SmartCityBaseService;
+import com.tianbo.smartcity.common.vo.SearchVo;
+import com.tianbo.smartcity.modules.your.entity.Floor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
+/**
+ * ${entity.description}接口
+ * @author ${entity.author}
+ */
+public interface ${entity.className}Service extends SmartCityBaseService<${entity.className},${entity.primaryKeyType}> {
+
+    /**
+    * 多条件分页获取
+    * @param ${entity.classNameLowerCase}
+    * @param searchVo
+    * @param pageable
+    * @return
+    */
+    Page<${entity.className}> findByCondition(${entity.className} ${entity.classNameLowerCase}, SearchVo searchVo, Pageable pageable);
+}
