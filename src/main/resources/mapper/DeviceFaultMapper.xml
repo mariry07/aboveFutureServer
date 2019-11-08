@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbo.smartcity.modules.your.dao.mapper.DeviceFaultMapper">
+
+    <select id="getDeviceFaultAll" resultType="com.tianbo.smartcity.modules.your.vo.DeviceFaultVo">
+         SELECT
+        (SELECT count(*) FROM t_device t1 WHERE t1.system_type ='11' and t1.company_id='1001' and t1.del_flag='0'  ) AS deviceAll,
+        (select COUNT(*) from t_device_fault where to_days(add_time) = to_days(now()) AND status ='0' and del_flag='0' ) AS untreatedAll,
+        (select COUNT(*) from t_device_fault where to_days(add_time) = to_days(now()) AND status ='1' and del_flag='0' ) AS handleAll,
+        (SELECT COUNT(*) FROM t_device_fault where DATE_FORMAT( add_time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) AND status ='1' and del_flag='0' ) AS  monthAll
+    </select>
+    <select id="getDeviceFaultCharts" resultType="com.tianbo.smartcity.modules.your.vo.DeviceFaultVo">
+       SELECT
+            date_format(add_time, '%Y-%m-%d') ctime,
+            (SELECT count(*) FROM t_device_fault WHERE add_time LIKE concat("%",ctime,"%") and del_flag='0') AS count
+        FROM
+            t_device_fault
+        WHERE add_time between #{searchVo.startDate} and #{searchVo.endDate}
+        <if test="deviceFault.deviceId != null and deviceFault.deviceId != ''">
+            and  device_id =#{deviceFault.deviceId}
+        </if>
+        AND del_flag = '0'
+        GROUP  BY ctime
+    </select>
+
+
+</mapper>

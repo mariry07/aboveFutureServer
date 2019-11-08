@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbo.smartcity.modules.patrol.dao.mapper.PatrolReportMapper">
+   
+
+    <select id="getPortalCountAll" resultType="com.tianbo.smartcity.modules.patrol.vo.PatrolReportVo">
+        SELECT
+	(
+		SELECT
+			COUNT(*)
+		FROM
+			tb_patrol_site a
+		WHERE
+			a.del_flag = '0'
+		and a.create_time between #{startDate} and #{endDate}
+	) AS siteCount,
+	(
+		SELECT
+			count( DISTINCT a.site_id )
+		FROM
+			tb_patrol_plan_task_result a
+		WHERE a.create_time between #{startDate} and #{endDate}
+	) AS alSiteCount,
+	(
+		SELECT
+			COUNT(*)
+		FROM
+			tb_patrol_device a
+		WHERE
+			a.del_flag = '0'
+		and create_time between #{startDate} and #{endDate}
+	) AS deviceCount
+    </select>
+    <select  id="getSiteCharts" resultType="com.tianbo.smartcity.modules.patrol.vo.PatrolReportVo">
+	    	SELECT
+		res.floorId,
+		res.floorName,
+		res.intactDevice,
+		res.alSite,
+		( res.siteCount - res.alSite ) AS unsite 
+	FROM
+		(
+	SELECT
+		f.id AS floorId,
+		f.`name` AS floorName,
+		count( DISTINCT r.device_id ) AS intactDevice,
+		count( DISTINCT sc.site_id ) AS alSite,
+		count( DISTINCT s.id ) AS siteCount 
+	FROM
+		t_floor f
+		LEFT JOIN tb_patrol_device d ON f.id = SUBSTR( d.floor_id FROM 1 FOR 8 )
+		LEFT JOIN ( SELECT DISTINCT device_id FROM tb_patrol_plan_task_result WHERE check_result = 1 AND del_flag = 0 AND update_time between #{startDate} and #{endDate}) r ON d.id = r.device_id
+		LEFT JOIN tb_patrol_site s ON f.id = SUBSTR( s.floor_id FROM 1 FOR 8 )
+		LEFT JOIN ( SELECT DISTINCT site_id FROM tb_patrol_plan_task_result WHERE del_flag = 0 AND update_time between #{startDate} and #{endDate} ) sc ON sc.site_id = s.id 
+	WHERE
+		f.`level` = 1 
+		AND f.del_flag = 0 
+	GROUP BY
+		f.id 
+		) res 
+	GROUP BY
+		res.floorId
+    </select>
+    <select id="getPlanCharts" resultType="com.tianbo.smartcity.modules.patrol.vo.PatrolReportVo">
+	    	SELECT
+		max( d.title ) AS typeName,
+		count( p.id ) AS planCount 
+	FROM
+		t_dict_data d
+		LEFT JOIN t_dict t ON d.dict_id = t.id
+		LEFT JOIN tb_patrol_plan p ON p.type = d.`value` 
+	WHERE
+		t.type = 'patrol_plan_type' 
+		AND t.del_flag = 0 
+		AND d.del_flag = 0 
+		AND p.update_time between #{startDate} and #{endDate}
+		AND p.del_flag = 0 
+		AND p.is_patrol=1
+	GROUP BY
+		d.`value`
+    </select>
+    
+    <select  id="getDeviceStatusCountCharts" resultType="com.tianbo.smartcity.modules.patrol.vo.PatrolReportVo">
+		SELECT
+			max( d.title ) AS statusName,
+			count( p.id ) AS deviceStatusCount 
+		FROM
+			t_dict_data d
+			LEFT JOIN t_dict t ON d.dict_id = t.id
+			LEFT JOIN ( SELECT `status`, id FROM tb_patrol_device WHERE update_time BETWEEN #{startDate} and #{endDate} and is_delete=0) p ON p.`status` = d.`value` 
+		WHERE
+			t.type = 'patrol_device_status' 
+			AND t.del_flag = 0 
+			AND d.del_flag = 0 
+		GROUP BY
+			d.`value`
+    </select>
+    
+
+
+</mapper>

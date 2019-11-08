@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbo.smartcity.modules.your.dao.mapper.FloorMapper">
+
+    <!-- 楼层信息关联部门查询相关数据
+     /*SELECT
+            a.*, b.title AS departmentTitle
+        FROM
+            t_floor a
+        LEFT JOIN t_department b ON a.department_id = b.id
+        ORDER BY
+            a. LEVEL ASC,
+            a.sort DESC;*/
+     -->
+    <select id="getAllByCompanyIdAndDepartmentId" resultType="com.tianbo.smartcity.modules.your.entity.Floor">
+
+        SELECT * FROM t_floor
+        where
+        del_flag = '0'
+        <if test="parentId != null and parentId != ''">
+            AND parent_id = #{parentId}
+        </if>
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="title != null and title != ''">
+            AND name = #{title}
+        </if>
+         ORDER BY level ASC, sort ASC;
+    </select>
+</mapper>

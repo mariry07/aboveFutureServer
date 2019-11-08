@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbo.smartcity.modules.your.dao.mapper.SensorMapper">
+    <select id="findPage" resultType="com.tianbo.smartcity.modules.your.vo.SensorVo">
+        select a.id as id,a.status as  status, a.disable as disable, b.name as  deviceName,b.position as  position,b.camera_id as cameraId,c.name as  sensorTypeName
+        from t_sensor a left join t_device b on  a.device_id = b.id left  join  t_sensor_type c  on  a.sensor_type_id = c.id
+        where a.device_id =#{sensorVo.deviceId}
+        <if test="sensorVo.deviceName != null and sensorVo.deviceName != ''">
+            and b.name LIKE CONCAT('%',#{sensorVo.deviceName}, '%')
+        </if>
+        <if test="sensorVo.sensorTypeName != null and sensorVo.sensorTypeName != ''">
+            and c.name LIKE CONCAT('%',#{sensorVo.sensorTypeName}, '%')
+        </if>
+        <if test="sensorVo.status != null and sensorVo.status != ''">
+            and a.status = #{sensorVo.status}
+        </if>
+        LIMIT #{pageVo.startRow},#{pageVo.pageSize}
+    </select>
+    <select id="findPageCount" resultType="java.lang.Integer">
+        select count(*) from t_sensor a left join t_sensor_type b
+        on a.sensor_type_id = b.id
+        where a.device_id =#{deviceId}
+        <if test="sensorTypeName != null and sensorTypeName != ''">
+            and b.name LIKE CONCAT('%',#{sensorTypeName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            and a.status = #{status}
+        </if>
+    </select>
+    <select id="findPage2" resultType="com.tianbo.smartcity.modules.your.entity.Sensor">
+        select * from t_sensor
+        <if test="ew!=null">
+            ${ew.sqlSegment}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbo.smartcity.modules.your.dao.mapper.ServerAlarmMapper">
+    <select id="getServerAlarmCharts" resultType="com.tianbo.smartcity.modules.your.vo.ServerAlarmVo">
+        SELECT
+            date_format(add_time, '%Y-%m-%d') ctime,
+            (SELECT count(*) FROM t_server_alarm WHERE add_time LIKE concat("%",ctime,"%")) AS count
+        FROM
+            t_server_alarm
+        WHERE add_time between #{startDate} and #{endDate}
+        AND del_flag = '0'
+        GROUP  BY ctime
+    </select>
+
+    <select id="getDeviceAlarmCharts" resultType="com.tianbo.smartcity.modules.your.vo.ServerAlarmVo">
+        SELECT
+            LEFT (a.floor_id, 8) AS floorId,
+            count(b.device_id) AS untreated,
+        count(d.device_id) AS processed,
+            e.name as floorName
+        FROM
+            t_device a
+        LEFT JOIN t_server_alarm b ON a.id = b.device_id AND b.status ='0' and b.add_time between #{searchVo.startDate} and #{searchVo.endDate} and b.del_flag = '0'
+        LEFT JOIN t_server_alarm d ON a.id = d.device_id AND d.status ='1' and d.add_time between #{searchVo.startDate} and #{searchVo.endDate} and d.del_flag = '0'
+        LEFT JOIN t_floor e ON LEFT (a.floor_id, 8) = e.id
+        WHERE a.floor_id !='' and  a.del_flag = '0'
+        GROUP BY floorid
+
+    </select>
+
+    <select id="getAlarmTypeCharts" resultType="com.tianbo.smartcity.modules.your.vo.ServerAlarmVo">
+        SELECT
+            count(a.id) as count,
+            a.deal_type as dealType,
+            b.alarm_name as alarmName
+        FROM
+            t_server_alarm a
+        LEFT JOIN t_sensor_type b ON a.sensor_type_id = b.id
+        WHERE
+            a.del_flag = '0'
+        /*and a.status ='0'*/
+        and a.add_time between #{searchVo.startDate} and #{searchVo.endDate}
+        GROUP BY alarmName
+
+    </select>
+
+
+    <select id="getDealTypeCharts" resultType="com.tianbo.smartcity.modules.your.vo.ServerAlarmVo">
+        SELECT
+            count(a.id) AS count,
+            a.deal_type as dealType
+        FROM
+            t_server_alarm a
+        WHERE
+            a.del_flag = '0'
+        and a.add_time between #{searchVo.startDate} and #{searchVo.endDate}
+        GROUP BY
+            a.deal_type
+
+    </select>
+
+
+    <select id="getAlamCharts" resultType="com.tianbo.smartcity.modules.your.vo.ServerAlarmVo">
+        SELECT
+                date_format(add_time, '%Y-%m-%d') ctime,
+                (SELECT count(*) FROM t_server_alarm WHERE add_time LIKE concat("%",ctime,"%") and  del_flag = '0') AS count
+        FROM
+                t_server_alarm
+        WHERE add_time between #{searchVo.startDate} and #{searchVo.endDate}
+
+        <if test="serverAlarm.deviceId != null and serverAlarm.deviceId != ''">
+            and device_id = #{serverAlarm.deviceId}
+        </if>
+        AND del_flag = '0'
+        GROUP  BY ctime
+
+    </select>
+
+    <select id="getAlarmSummaryCountAll" resultType="com.tianbo.smartcity.modules.your.vo.ServerAlarmVo">
+        SELECT
+	(
+		SELECT
+			COUNT(*)
+		FROM
+			t_server_alarm a left join t_device b on a.device_id = b.id
+		WHERE
+			a.del_flag = '0'
+			and b.del_flag = '0'
+			and b.floor_id !=''
+		and a.add_time between #{startDate} and #{endDate}
+	) AS alarmCount,
+	(
+		SELECT
+			count(*)
+		FROM
+			t_device c
+		WHERE
+			c.del_flag = '0'
+		AND c.running_state = '1'
+		and add_time between #{startDate} and #{endDate}
+	) AS deviceStatusAll,
+	(
+		SELECT
+			count(*)
+		FROM
+			t_device c
+		WHERE
+			c.del_flag = '0'
+	) AS deviceAll,
+	(
+		SELECT
+			COUNT(*)
+		FROM
+			t_server_alarm a
+		WHERE
+			a.del_flag = '0'
+		AND a.`status` = '0'
+		and add_time between #{startDate} and #{endDate}
+	) AS untreated,
+	(
+		SELECT
+			COUNT(*)
+		FROM
+			t_server_alarm a
+		WHERE
+			a.del_flag = '0'
+		AND a.`status` = '1'
+		and add_time between #{startDate} and #{endDate}
+	) AS processed
+
+    </select>
+
+
+</mapper>

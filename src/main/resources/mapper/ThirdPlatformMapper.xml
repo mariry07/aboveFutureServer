@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianbo.smartcity.modules.third.dao.mapper.ThirdPlatformMapper">
+
+    <!-- 获取所有第三方平台接口-->
+    <select id="getAll" resultType="com.tianbo.smartcity.modules.third.entity.ThirdPlatform">
+      SELECT
+        t.USER_ID,
+        t.ACCESS_KEY,
+        t.THIRD_NAME,
+        t.FREEZE_STATUS
+      FROM t_user_third t
+      LEFT JOIN t_user u ON u.id = t.user_id
+      WHERE t.DEL_FLAG = 0
+      AND t.FREEZE_STATUS = 0
+      AND u.DEL_FLAG = 0
+      AND u.STATUS = 0
+    </select>
+
+
+    <!-- 根据第三方平台标识获取对象 -->
+    <select id="getThird" parameterType="com.tianbo.smartcity.modules.third.entity.ThirdPlatform"
+            resultType="com.tianbo.smartcity.modules.third.entity.ThirdPlatform">
+        SELECT
+        t.THIRD_NAME,
+        t.ACCESS_KEY,
+        t.USER_ID,
+        t.USER_NAME,
+        t.FREEZE_STATUS
+        FROM t_user_third t
+        WHERE t.DEL_FLAG = 0
+        <if test="thirdName != null and thirdName != ''">
+            AND t.THIRD_NAME LIKE CONCAT('%', #{thirdName}, '%')
+        </if>
+        <if test="accessKey != null and accessKey != ''">
+            AND t.ACCESS_KEY = #{accessKey}
+        </if>
+        <if test="userId != null and userId != ''">
+            AND t.USER_ID = #{userId}
+        </if>
+        <if test="userName != null and userName != ''">
+            AND t.USER_NAME LIKE CONCAT('%', #{userName}, '%')
+        </if>
+        <if test="freezeStatus != null and freezeStatus != ''">
+            AND t.FREEZE_STATUS = #{freezeStatus}
+        </if>
+
+    </select>
+
+    <!-- 根据用户id删除第三方平台-->
+    <update id="deleteByUserId" parameterType="java.lang.String">
+      UPDATE t_user_third SET
+        DEL_FLAG = 1
+      WHERE USER_ID = #{id}
+      AND DEL_FLAG = 0
+    </update>
+
+</mapper>
